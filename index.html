@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Compressor</title>
+</head>
+<body>
+    <h1>Image Compressor</h1>
+    <input type="text" id="inputImage" placeholder="Input Image Path">
+    <button id="compressButton">Compress Image</button>
+    <pre id="result"></pre>
+    <img id="resultImage" />
+
+    <script>
+        document.getElementById('compressButton').addEventListener('click', () => {
+            const inputImage = document.getElementById('inputImage').value;
+            const inputParts = inputImage.split('.');
+            const outputImage = inputParts.length > 1 
+                ? `${inputParts.slice(0, -1).join('.')}_compressed.${inputParts.pop()}` 
+                : `${inputImage}_compressed`; // Fallback if no extension
+
+            console.log("Input Image:", inputImage); // Debugging output
+            console.log("Output Image:", outputImage); // Debugging output
+
+            window.electron.send('compress-image', inputImage, outputImage);
+        });
+
+        window.electron.receive('compression-result', (result) => {
+          const base64 = result.split('base64::')[1];
+          document.getElementById('resultImage').src = `data:image/jpeg;base64,${base64}`;
+        });
+    </script>
+</body>
+</html>
